@@ -1,106 +1,179 @@
-# Practical 4 – Star and Ring Network Topologies
+# Practical 4 – Star and Ring Topologies in Cisco Packet Tracer
 
 [← Back to Home](README.md)
 
 ---
 
 ## 🎯 AIM
-To design and configure Star and Ring network topologies in Cisco Packet Tracer.
+Study and Configure Star and Ring Network Topologies in Cisco Packet Tracer.
 
 ---
 
 ## PART A – STAR TOPOLOGY
 
-### 🖥️ Devices Required
-- 3 × PC (PC0, PC1, PC2)
-- 1 × Switch **2960-24TT** (central device)
-- Copper Straight-Through cables
+### What is Star Topology?
+In a star topology, every device is directly connected to a central switch/hub. Communication between devices passes through the central device.
 
-### 📋 IP Configuration
-
-| Device | IP Address | Subnet Mask |
-|--------|-----------|-------------|
-| PC0 | 192.168.3.1 | 255.255.255.0 |
-| PC1 | 192.168.3.2 | 255.255.255.0 |
-| PC2 | 192.168.3.3 | 255.255.255.0 |
+---
 
 ### 🔧 Steps
 
-1. Add **3 PCs** and a **2960-24TT switch** to the workspace
-2. Connect **every PC directly to the central switch** using Copper Straight-Through:
-   ```
-   PC0  →  Switch Fa0/1
-   PC1  →  Switch Fa0/2
-   PC2  →  Switch Fa0/3
-   ```
-3. Assign IP addresses to each PC (no gateway needed)
-4. From PC0 → Desktop → **Command Prompt**:
-   ```
-   ping 192.168.3.2
-   ping 192.168.3.3
-   ```
-5. Successful replies confirm star topology ✅
+#### Step 1 – Open Packet Tracer
+1. Open **Cisco Packet Tracer**.
+2. Create a **New Project**.
 
-### 🔑 Star Topology Key Points
-- All devices connect to a **central switch/hub**
-- If **one cable fails**, only that device is affected
-- **Most common** topology in modern LANs
-- Easy to add/remove devices
+#### Step 2 – Add the Switch
+Go to **Networking Devices → Switches & Hubs** and place 1 switch in the center:
+```
+          Switch
+```
+
+#### Step 3 – Add PCs
+Go to **End Devices → PC** and place PCs around the switch. For easy execution, use 5 PCs:
+```
+PC0
+PC1
+PC2
+PC3
+PC4
+```
+*(The manual represents the number as (n) PCs, so the exact number can depend on the practical requirement.)*
+
+#### Step 4 – Connect PCs to Switch
+Select **Connections** (⚡) → **Copper Straight-Through**.
+Connect every PC directly to the central switch:
+
+```
+             PC0
+              |
+PC1 ─────── Switch ───── PC2
+              |
+             PC3
+              |
+             PC4
+```
+
+For each connection:
+1. Click **PC0** → select `FastEthernet0`.
+2. Click the **switch** → select an available `FastEthernet` port.
+3. Repeat for all PCs.
+*(Copper straight-through cables are specified for PC-to-switch connections).*
+
+#### Step 5 – Configure IP addresses
+Double-click each PC: **Desktop → IP Configuration → Static**
+
+| PC | IP Address | Subnet Mask |
+|----|-----------|-------------|
+| PC0 | 172.16.0.1 | 255.255.255.0 |
+| PC1 | 172.16.0.2 | 255.255.255.0 |
+| PC2 | 172.16.0.3 | 255.255.255.0 |
+| PC3 | 172.16.0.4 | 255.255.255.0 |
+| PC4 | 172.16.0.5 | 255.255.255.0 |
+
+> No default gateway is required for this simple same-subnet setup.
+
+#### Step 6 – Test the Star Topology
+Go to **PC0 → Desktop → Command Prompt** and type:
+```
+ping 172.16.0.2
+ping 172.16.0.3
+```
+You should get replies. You can also test:
+```
+ping 172.16.0.4
+ping 172.16.0.5
+```
+*(Verify that all PCs can communicate successfully).*
+
+#### Step 7 – Use Simple PDU
+Alternatively, demonstrate the packet flow:
+1. Select **Add Simple PDU** (envelope icon).
+2. Click the source PC.
+3. Click the destination PC.
+4. Observe the packet travelling through the switch.
 
 ---
 
 ## PART B – RING TOPOLOGY
 
-> **⚠️ Important:** A normal Packet Tracer PC has **only one** Ethernet interface — do NOT try to connect PCs directly in a ring. Use **4 switches** to form the ring instead.
+### What is Ring Topology?
+In a ring topology, devices are connected in a closed loop. Each switch is connected to two neighboring switches.
 
-### 🖥️ Devices Required
-- 4 × Switch **2960-24TT** (S0, S1, S2, S3)
-- 4 × PC (optional — one per switch for testing)
-- Copper Straight-Through cables
-
-### 🔗 Switch Ring Connections
-
-```
-S0  →  S1
-S1  →  S3
-S3  →  S2
-S2  →  S0
-```
-
-This forms a complete ring: S0 → S1 → S3 → S2 → S0
+---
 
 ### 🔧 Steps
 
-1. Add **4 × 2960-24TT switches**: S0, S1, S2, S3
-2. Connect switches to form the ring as shown above
-3. Optionally connect one PC to each switch using Straight-Through cable
-4. If testing with PCs, assign IPs:
+#### Step 1 – Create a New Project
+Go to **File → New**. Select Empty Activity under the New tab.
 
-| Device | IP Address | Connected To |
-|--------|-----------|-------------|
-| PC0 | 192.168.4.1 | S0 |
-| PC1 | 192.168.4.2 | S1 |
-| PC2 | 192.168.4.3 | S2 |
-| PC3 | 192.168.4.4 | S3 |
+#### Step 2 – Add PCs and Switches
+Add 4 PCs and 4 switches. Place them like this:
 
-5. Subnet Mask for all: **255.255.255.0**
-6. Test from PC0 → Desktop → **Command Prompt**:
-   ```
-   ping 192.168.4.2
-   ping 192.168.4.3
-   ping 192.168.4.4
-   ```
+```
+PC0       PC1
+ |         |
+S0        S1
+ |         |
+S3────────S2
+```
 
-### 🔑 Ring Topology Key Points
-- Data travels in **one direction** around the ring
-- Each device has exactly **two connections** (to left and right neighbours)
-- If **one link fails**, the whole ring can be affected (unless dual ring)
-- Used in **Token Ring** and **FDDI** networks
+#### Step 3 – Connect each PC to its Switch
+Connect using **Copper Straight-Through** cables:
+- PC0 → Switch0
+- PC1 → Switch1
+- PC2 → Switch2
+- PC3 → Switch3
+
+*(Each PC must have a direct connection to its own switch).*
+
+#### Step 4 – Connect the Switches in a Ring
+Connect the switches in a closed loop using **Copper Crossover** cables:
+```
+Switch0 → Switch1 → Switch2 → Switch3 → Switch0
+```
+
+Your complete topology diagram:
+```
+       Switch0
+       /     \
+      /       \
+ Switch1     Switch3
+      \       /
+       \     /
+       Switch2
+```
+
+#### Step 5 – Configure IP addresses
+Double-click each PC and go to its IP configuration.
+
+| PC | IP Address | Subnet Mask |
+|----|-----------|-------------|
+| PC0 | 172.16.0.1 | 255.255.255.0 |
+| PC1 | 172.16.0.2 | 255.255.255.0 |
+| PC2 | 172.16.0.3 | 255.255.255.0 |
+| PC3 | 172.16.0.4 | 255.255.255.0 |
+
+*(Unique IP addresses in the same subnet are required).*
+
+#### Step 6 – Verify Using Ping
+Open **PC0 → Desktop → Command Prompt** and run:
+```
+ping 172.16.0.2
+ping 172.16.0.3
+ping 172.16.0.4
+```
+If you receive replies, the ring is communicating correctly. Repeat the ping test from other PCs if required.
+
+#### Step 7 – Use Simple PDU
+1. Select **Add Simple PDU**.
+2. Click source PC.
+3. Click destination PC.
+4. Observe the packet travelling through the ring.
 
 ---
 
 ## ✅ RESULT
-Star and Ring topologies were studied and configured successfully.
+Star and Ring network topologies were successfully studied and configured in Cisco Packet Tracer.
 
 ---
 [← Practical 3](practical3.md) | [Back to Home](README.md) | [Next → Practical 5](practical5.md)
