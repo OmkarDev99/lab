@@ -1,155 +1,156 @@
-# Practical 8 – Static Routing using Cisco Packet Tracer
+# Practical 8 – Static Routing in Cisco Packet Tracer
 
 [← Back to Home](README.md)
 
 ---
 
 ## 🎯 AIM
-To configure static routes on two routers and enable communication between two remote LANs.
+Configure Static Routing using 2 routers in Cisco Packet Tracer.
 
 ---
 
-## 🖥️ Devices Required
-- 4 × PC (PC0, PC1, PC2, PC3)
-- 2 × Switch 2960-24TT (SW0, SW1)
-- 2 × Router 1941 (R0, R1)
-- Copper Straight-Through cables
+## 1. Understand the Topology
 
----
-
-## 🗺️ Network Topology
+The basic topology consists of two different LANs connected through two routers:
 
 ```
-PC0 ──┐                                    ┌── PC2
-      ├── SW0 ── R0 (G0/0|G0/1)──(G0/1|G0/0) R1 ── SW1 ──┤
-PC1 ──┘                                    └── PC3
-
-LAN 1: 192.168.10.0/24   Link: 10.0.0.0/30   LAN 2: 192.168.20.0/24
+PC0 ─┐
+PC1 ─┼── Switch0 ─── Router0 ───── Router1 ─── Switch1 ─┬─ PC2
+     ┘                                                    └─ PC3
 ```
 
----
+There are two networks:
+- **LAN 1:** `192.168.1.0/24`
+- **LAN 2:** `192.168.2.0/24`
 
-## 📋 IP Configuration
-
-### LAN 1 – 192.168.10.0/24
-
-| Device | IP Address | Subnet Mask | Gateway |
-|--------|-----------|-------------|---------|
-| PC0 | 192.168.10.10 | 255.255.255.0 | 192.168.10.1 |
-| PC1 | 192.168.10.11 | 255.255.255.0 | 192.168.10.1 |
-| R0 G0/0 | 192.168.10.1 | 255.255.255.0 | — |
-
-### Router-to-Router Link – 10.0.0.0/30
-
-| Device | IP Address | Subnet Mask |
-|--------|-----------|-------------|
-| R0 G0/1 | 10.0.0.1 | 255.255.255.252 |
-| R1 G0/1 | 10.0.0.2 | 255.255.255.252 |
-
-### LAN 2 – 192.168.20.0/24
-
-| Device | IP Address | Subnet Mask | Gateway |
-|--------|-----------|-------------|---------|
-| PC2 | 192.168.20.10 | 255.255.255.0 | 192.168.20.1 |
-| PC3 | 192.168.20.11 | 255.255.255.0 | 192.168.20.1 |
-| R1 G0/0 | 192.168.20.1 | 255.255.255.0 | — |
+The routers communicate through a WAN link:
+- **Router0:** `11.0.0.1`
+- **Router1:** `11.0.0.2`
 
 ---
 
 ## 🔧 Steps
 
-### Step 1 – Connect All Devices
-```
-PC0  →  SW0 Fa0/1
-PC1  →  SW0 Fa0/2
-SW0  →  R0 G0/0
-R0 G0/1  →  R1 G0/1
-R1 G0/0  →  SW1
-SW1 Fa0/1  →  PC2
-SW1 Fa0/2  →  PC3
-```
+### Step 2 – Open Cisco Packet Tracer
+1. Open **Cisco Packet Tracer**.
+2. Select **File → New**. Keep the workspace empty.
 
-### Step 2 – Configure R0
+### Step 3 – Add the Devices
+From the device panel, add exactly:
+- **4 PCs:** PC0, PC1, PC2, PC3
+- **2 Switches:** Switch0, Switch1
+- **2 Routers:** Router0, Router1
 
+### Step 4 – Connect the Devices
+The easiest way is to use the **Automatic Connecting Cable** (lightning bolt icon with "Automatically Choose Connection Type").
+
+Wait until the links become active (green).
+Connect them as follows:
+- PC0 → Switch0
+- PC1 → Switch0
+- Switch0 → Router0
+- Router0 → Router1
+- Router1 → Switch1
+- Switch1 → PC2
+- Switch1 → PC3
+
+### Step 5 – Configure the PCs
+Assign IP addresses, subnet masks, and default gateways for each PC.
+*(Double-click PC → Desktop → IP Configuration → Static)*
+
+| PC | IP Address | Subnet Mask | Default Gateway |
+|----|-----------|-------------|-----------------|
+| PC0 | 192.168.1.2 | 255.255.255.0 | 192.168.1.1 |
+| PC1 | 192.168.1.3 | 255.255.255.0 | 192.168.1.1 |
+| PC2 | 192.168.2.2 | 255.255.255.0 | 192.168.2.1 |
+| PC3 | 192.168.2.3 | 255.255.255.0 | 192.168.2.1 |
+
+### Step 6 – Configure Router0
+Click **Router0 → Config → Interfaces**.
+
+**FastEthernet0/0 (LAN 1 connection):**
+- **IP Address:** `192.168.1.1`
+- **Subnet Mask:** `255.255.255.0`
+- Turn the interface **On**.
+
+**Serial2/0 (WAN connection to Router1):**
+- **IP Address:** `11.0.0.1`
+- **Subnet Mask:** `255.255.255.0`
+- Turn the interface **On**.
+
+### Step 7 – Configure Router1
+Click **Router1 → Config → Interfaces**.
+
+**FastEthernet0/0 (LAN 2 connection):**
+- **IP Address:** `192.168.2.1`
+- **Subnet Mask:** `255.255.255.0`
+- Turn the interface **On**.
+
+**Serial2/0 (WAN connection to Router0):**
+- **IP Address:** `11.0.0.2`
+- **Subnet Mask:** `255.255.255.0`
+- Turn the interface **On**.
+
+### Step 8 – Understand why Static Routing is required
+At this point:
+- **Router0** knows `192.168.1.0/24` (directly connected to LAN 1)
+- **Router1** knows `192.168.2.0/24` (directly connected to LAN 2)
+
+But Router0 doesn't know how to reach `192.168.2.0/24`, and Router1 doesn't know how to reach `192.168.1.0/24`. We must manually configure these paths using **Static Routing**.
+
+### Step 9 – Configure Static Route on Router0
+Click **Router0 → CLI**, press Enter, and type:
 ```
 enable
 configure terminal
-
-interface GigabitEthernet 0/0
- ip address 192.168.10.1 255.255.255.0
- no shutdown
- exit
-
-interface GigabitEthernet 0/1
- ip address 10.0.0.1 255.255.255.252
- no shutdown
- exit
-
-ip route 192.168.20.0 255.255.255.0 10.0.0.2
-
-end
+ip route 192.168.2.0 255.255.255.0 11.0.0.2
 ```
+**Meaning:**
+- **Destination network:** `192.168.2.0`
+- **Subnet mask:** `255.255.255.0`
+- **Next hop (Router1's IP):** `11.0.0.2`
 
-### Step 3 – Configure R1
-
+### Step 10 – Configure Static Route on Router1
+Click **Router1 → CLI**, press Enter, and type:
 ```
 enable
 configure terminal
-
-interface GigabitEthernet 0/0
- ip address 192.168.20.1 255.255.255.0
- no shutdown
- exit
-
-interface GigabitEthernet 0/1
- ip address 10.0.0.2 255.255.255.252
- no shutdown
- exit
-
-ip route 192.168.10.0 255.255.255.0 10.0.0.1
-
-end
+ip route 192.168.1.0 255.255.255.0 11.0.0.1
 ```
+**Meaning:**
+- **Destination network:** `192.168.1.0`
+- **Subnet mask:** `255.255.255.0`
+- **Next hop (Router0's IP):** `11.0.0.1`
 
-### Step 4 – Configure PC Gateways
-- PC0 and PC1 gateway: `192.168.10.1`
-- PC2 and PC3 gateway: `192.168.20.1`
-
-### Step 5 – Test Connectivity
-
-From **PC0** → Desktop → Command Prompt:
+### Step 11 – Test the network
+Verify communication between the two LANs.
+From **PC1 → Desktop → Command Prompt**:
 ```
-ping 192.168.20.10
+ping 192.168.2.2
 ```
+If configured correctly, you should get `Reply from 192.168.2.2`.
 
-Verify routes on router:
+### Step 12 – Test the reverse direction
+From **PC2 → Desktop → Command Prompt**:
 ```
-show ip route
+ping 192.168.1.2
+ping 192.168.1.3
 ```
-
-> ✅ A successful ping from PC0 to 192.168.20.10 confirms static routing is working.
+You should receive replies from PC0 and PC1.
 
 ---
 
-## 🔑 KEY POINTS
-
-```
-Static Route Syntax:
-ip route <destination-network> <subnet-mask> <next-hop-IP>
-
-Example on R0:
-ip route 192.168.20.0 255.255.255.0 10.0.0.2
-       (reach LAN2)    (mask)       (via R1's interface)
-```
-
-- Static routes must be configured **manually** on each router
-- Each router needs a route to every **remote** network
-- Use `/30` subnet for point-to-point router links (only 2 usable IPs)
+## 🛠️ Troubleshooting (If Ping Fails)
+If your ping tests fail, check the following:
+1. **PC IP Addresses:** Are they exactly as in the table?
+2. **Gateways:** Do PC0/PC1 point to `192.168.1.1` and PC2/PC3 point to `192.168.2.1`?
+3. **Router interfaces:** Ensure all relevant FastEthernet and Serial interfaces are turned **On**.
+4. **Static routes:** Check that `ip route` was typed correctly with the exact networks and next hops.
 
 ---
 
 ## ✅ RESULT
-Static routes were configured and communication between two remote LANs was verified.
+Static Routing was successfully configured between two routers, allowing two separate LANs to communicate.
 
 ---
 [← Practical 7](practical7.md) | [Back to Home](README.md) | [Next → Practical 9](practical9.md)
