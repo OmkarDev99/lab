@@ -5,154 +5,152 @@
 ---
 
 ## 🎯 AIM
-To capture and analyze HTTP, TCP and ICMP packets using Wireshark.
+Implement and analyse protocols: HTTP, TCP, and ICMP using Wireshark.
 
-> **⚠️ Requirement:** Wireshark must be installed on the computer and the correct **network interface** must be selected before starting a capture.
-
----
-
-## PART A – ICMP (Ping Packets)
-
-### Steps
-
-1. Open **Wireshark**
-2. Select the **active network interface** (e.g. Ethernet, Wi-Fi)
-3. Click **Start Capture** (blue shark-fin button ▶)
-4. Open **Command Prompt**
-5. Run:
-   ```
-   ping 8.8.8.8
-   ```
-   *(If no Internet: ping another device on your LAN)*
-6. Click **Stop Capture** (red square ■)
-7. In the filter bar, type:
-   ```
-   icmp
-   ```
-   and press Enter
-8. Observe **Echo Request** and **Echo Reply** packets
-9. Click on a packet to inspect details
-
-### What to Observe
-
-| Field | Description |
-|-------|-------------|
-| Type 8 | Echo Request — sent by the pinging host |
-| Type 0 | Echo Reply — sent by the target host |
-| Source IP | Your machine's IP address |
-| Destination IP | Target IP (e.g. 8.8.8.8) |
-| TTL | Time To Live — decremented at each hop |
+**Objective:** Learn how to capture and analyse HTTP, TCP and ICMP packets using Wireshark.
+> **Note:** This practical is different from Practicals 1–9. You are capturing real network packets passing through your network interface, not creating a Packet Tracer topology.
 
 ---
 
-## PART B – TCP (Three-Way Handshake)
+## PART A – Understanding Wireshark
 
-### What is the TCP Three-Way Handshake?
-```
-Client                        Server
-  |                              |
-  |-------- SYN ---------------→|   Step 1: Client requests connection
-  |                              |
-  |←------- SYN-ACK ------------|   Step 2: Server acknowledges + requests
-  |                              |
-  |-------- ACK ---------------→|   Step 3: Client confirms
-  |                              |
-  |      Connection Established  |
-```
+Wireshark is a network protocol analyzer. It captures packets passing through a selected network interface and displays their details. It does not itself send packets.
 
-### Steps
-
-1. Start a **new Wireshark capture**
-2. Open a browser and visit any website (or run any TCP application)
-3. Click **Stop Capture**
-4. Apply display filter:
-   ```
-   tcp
-   ```
-5. Look for packets with flags:
-   - `[SYN]` — connection request
-   - `[SYN, ACK]` — connection accepted
-   - `[ACK]` — connection confirmed
-6. Right-click a packet → **Follow → TCP Stream** to see the full session
-
-### Useful TCP Filters
-
-```
-tcp                                  → all TCP packets
-tcp.flags.syn == 1                   → only SYN packets
-tcp.flags.ack == 1 && tcp.flags.syn == 1  → SYN-ACK packets
-```
-
-### TCP Packet Fields to Note
-
-| Field | Description |
-|-------|-------------|
-| Source Port | Client's port number |
-| Destination Port | Server's port (80 for HTTP, 443 for HTTPS) |
-| Sequence Number | Tracks order of bytes sent |
-| Acknowledgement No. | Next byte expected |
-| Flags | SYN, ACK, FIN, RST |
+You will perform 3 experiments:
+1. HTTP packet capture
+2. TCP packet capture
+3. ICMP packet capture
 
 ---
 
-## PART C – HTTP (Web Traffic)
+## Part 1 – Analyse HTTP
 
-> **⚠️ Important:** Most modern websites use **HTTPS** (TLS encrypted). The `http` filter will show nothing for HTTPS sites. Use a plain HTTP lab server or type `http://` explicitly.
+### Step 1 – Open Wireshark
+1. Open **Wireshark**.
+2. You will see a list of available network interfaces.
+3. Select the active interface through which your computer has Internet connectivity (e.g., `Wi-Fi` or `Ethernet`).
+4. Double-click the active interface or click **Start** to begin capturing.
 
-### Steps
+### Step 2 – Start packet capture
+Once you start the capture, Wireshark will continuously capture network packets. You will see packets appearing in the main window. Do not stop the capture yet.
 
-1. Start a **Wireshark capture**
-2. Visit an HTTP (not HTTPS) website in your browser
-3. Click **Stop Capture**
-4. Apply display filter:
+### Step 3 – Open the HTTP website
+1. Open your web browser.
+2. Enter the exact URL given in the lab manual:
    ```
-   http
+   http://gaia.cs.umass.edu/wireshark-labs/INTRO-wireshark-file1.html
    ```
-5. Inspect **HTTP Request** and **HTTP Response** packets
+3. Press Enter and wait until the webpage is displayed.
+*(The HTTP traffic generated while loading the page will be captured by Wireshark).*
 
-### HTTP Request Fields
+### Step 4 – Stop capturing
+After the webpage loads:
+1. Go back to Wireshark.
+2. Click the **Stop** button (red square).
+3. The captured packets will now be displayed.
 
-| Field | Description |
-|-------|-------------|
-| Method | GET / POST / PUT / DELETE |
-| Host | Target domain name |
-| User-Agent | Browser / client identifier |
-| Source IP | Client IP address |
-| Destination Port | Port **80** (HTTP) |
-
-### HTTP Response Fields
-
-| Field | Description |
-|-------|-------------|
-| Status Code | 200 OK / 404 Not Found / 301 Redirect |
-| Content-Type | text/html / application/json |
-| Source IP | Server IP address |
-| Source Port | Port **80** (server side) |
-
-### Useful HTTP Filters
-
+### Step 5 – Apply HTTP filter
+At the top of Wireshark, find the **Display Filter** box.
+Type:
 ```
-http               → all HTTP packets
-http.request       → only HTTP requests
-http.response      → only HTTP responses
+http
 ```
+Then press Enter or click Apply. Now only HTTP-related packets should be displayed.
+
+### Step 6 – Find the HTTP GET request
+Look through the filtered packets. Select the first HTTP message.
+It should be the `HTTP GET` request sent from your computer to the `gaia.cs.umass.edu` server.
+
+### Step 7 – Understand the packet structure
+When you select the HTTP GET packet, the packet details pane will show protocol layers:
+```
+Frame
+   ↓
+Ethernet
+   ↓
+Internet Protocol (IP)
+   ↓
+Transmission Control Protocol (TCP)
+   ↓
+Hypertext Transfer Protocol (HTTP)
+```
+> **Viva Point:** The HTTP GET message is contained inside a TCP segment, which is inside an IP datagram, which is inside an Ethernet frame.
+
+### Step 8 – Expand the HTTP information
+In the packet details section, you can expand the sections by clicking the small arrow/+.
+- Frame
+- Ethernet
+- Internet Protocol
+- Transmission Control Protocol
+- Hypertext Transfer Protocol
+
+*(Maximize the HTTP information to analyse methods and requests while minimizing unnecessary information).*
 
 ---
 
-## 🔑 SUMMARY – Protocol Filters
+## Part 2 – Analyse TCP
 
-| Protocol | Wireshark Filter | Port |
-|----------|-----------------|------|
-| ICMP (Ping) | `icmp` | — |
-| TCP | `tcp` | Various |
-| HTTP | `http` | 80 |
-| HTTPS | `tls` | 443 |
-| DNS | `dns` | 53 |
+### Step 1 – Apply TCP filter
+In the Wireshark Display Filter box, enter:
+```
+tcp
+```
+Press Enter.
+
+### Step 2 – Generate TCP traffic
+Open a browser and access a webpage such as `amazon` to generate TCP traffic.
+
+### Step 3 – Filter Amazon traffic
+To find the specific traffic, enter the following in the Display Filter box:
+```
+tcp contains "amazon"
+```
+Press Enter. Now examine the displayed TCP packets.
+
+### Step 4 – Analyse TCP packet
+Click on one of the TCP packets.
+In the packet details pane, expand **Transmission Control Protocol**. You can observe TCP-related information.
+> **Viva Point:** TCP is responsible for reliable, connection-oriented communication.
+
+---
+
+## Part 3 – Analyse ICMP
+
+### Step 1 – Start a new capture
+Start a new capture by clicking **Capture → Start** (or start capturing again from the selected interface).
+
+### Step 2 – Open Command Prompt
+On Windows: Press `Win + R`, type `cmd`, and press Enter.
+
+### Step 3 – Ping a website/IP
+Use the ping command. For example:
+```
+ping google.com
+```
+or:
+```
+ping 8.8.8.8
+```
+
+### Step 4 – Observe ICMP packets
+Go back to Wireshark. You should see ICMP packets generated by the ping.
+On Windows, you should be able to see:
+- `ICMP Echo Request`
+- Corresponding replies.
+
+You can identify the IP address that you pinged in the ICMP Echo Request details.
+
+### Step 5 – Filter ICMP
+For practical understanding, the commonly used Wireshark filter is:
+```
+icmp
+```
+*(Note: `icmp` is standard Wireshark usage for filtering ICMP packets).*
 
 ---
 
 ## ✅ RESULT
-HTTP, TCP and ICMP packets were captured and analyzed using Wireshark.
+HTTP, TCP, and ICMP protocols were successfully implemented and their packet details were analyzed using Wireshark.
 
 ---
 [← Practical 9](practical9.md) | [Back to Home](README.md)
