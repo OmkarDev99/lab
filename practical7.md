@@ -1,118 +1,170 @@
-# Practical 7 – Sliding Window Protocol – Go-Back-N and Selective Repeat
+# Practical 7 – Sliding Window Protocols (Go-Back-N & Selective Repeat)
 
 [← Back to Home](README.md)
 
 ---
 
 ## 🎯 AIM
-To study and simulate Go-Back-N (GBN) and Selective Repeat (SR) sliding window ARQ protocols and analyze their retransmission behavior.
+To implement Go-Back-N and Selective Repeat sliding window ARQ protocols using a programming language of your choice.
 
-> **Note:** This practical is implemented using a programming/simulation environment — not standard Packet Tracer.
-
----
-
-## 📖 BACKGROUND
-
-### What is a Sliding Window Protocol?
-- Allows the sender to transmit **multiple frames** before needing an acknowledgement
-- **Window Size** = maximum number of unacknowledged frames in transit
-- Used to improve **efficiency** over simple Stop-and-Wait ARQ
+> **Note:** This practical is different from Practicals 1–6. It is **not** done in Cisco Packet Tracer. The manual asks you to implement these protocols programmatically (e.g., using Python, C++, Java).
 
 ---
 
-## PART A – GO-BACK-N (GBN)
+## 1. Understand What You Have to Implement
 
-### Concept
-- Sender transmits frames within the window size
-- If one frame is **lost or errored**, the sender retransmits that frame **AND ALL FRAMES AFTER IT**
-- Receiver **discards** out-of-order frames
+You need to write programs for two protocols:
 
-### Diagram
+### A. Go-Back-N (GBN)
+Suppose the sender sends:
+`Frame 1 → Frame 2 → Frame 3 → Frame 4`
+
+If Frame 3 is lost/corrupted, the receiver **does not accept it** (or any subsequent frames) and the sender eventually retransmits the required frame **and the subsequent frames**.
+
+**Manual Specifications:**
+- Receiver buffer size = 1
+- Sender has a predefined buffer/window size.
+- If a frame is corrupted, the receiver cancels/discards it.
+- If the ACK timer expires, retransmission occurs.
+
+### B. Selective Repeat (SR)
+Suppose the sender sends:
+`Frame 1 → Frame 2 → Frame 3 → Frame 4`
+*(Suppose Frame 3 is lost ❌)*
+
+If Frame 3 is corrupted/lost:
+**Retransmit ONLY Frame 3.**
+
+Frames received correctly after it (like Frame 4) can be acknowledged and buffered by the receiver.
+
+**Manual Specifications:**
+- Sender and receiver window sizes are the **same**.
+- Selective Repeat saves bandwidth compared to Go-Back-N.
+
+---
+
+## 2. What You Need for the Practical
+
+Since the manual says "using a programming language of your choice", you can use a language like **Python**. You do not need Packet Tracer for this practical. The procedure is simply to implement both protocols programmatically to demonstrate the logic.
+
+---
+
+## 3. Go-Back-N — How to Perform It
+
+For your practical, think of the program as having two sides: SENDER and RECEIVER.
+
+### Step 1 – Start the program
+Create your code file, for example: `go_back_n.py`
+
+### Step 2 – Take input
+Your program should ask for:
+- Number of frames
+- Window size
+- Which frame should be considered lost/corrupted
+
+*Example:*
 ```
-Sender Window (W = 4):
-
-[F0 ✓] [F1 ✓] [F2 ✗LOST] [F3] [F4] [F5]
-                    ↓
-         F2 lost → Retransmit F2, F3, F4, F5
+Number of frames: 6
+Window size: 3
+Lost frame: 3
 ```
 
-### Implementation Plan
+### Step 3 – Create the sender window
+If window size = 3, the sender window starts as:
+`[1] [2] [3]`
 
-1. Define:
-   - Total number of frames to send
-   - Window size (e.g. W = 4)
-   - Which frame will be lost/errored
-2. Sender transmits frames inside the window
-3. Simulate error/loss at the specified frame
-4. Receiver detects missing frame (sequence number gap)
-5. Sender retransmits **the missing frame AND all subsequent frames**
-6. Display ACK numbers and retransmission events
-7. Continue until all frames are acknowledged
+The sender can initially send these frames.
+After successful acknowledgements, the window slides:
+`[2] [3] [4]` → `[3] [4] [5]` and so on.
 
-### Key Formula
+### Step 4 – Send frames
+The program prints:
 ```
-Sender window size  =  2^n - 1   (where n = number of sequence bits)
+Sending Frame 1
+Sending Frame 2
+Sending Frame 3
+```
+If Frame 3 is designated as lost: `Frame 3 lost/corrupted`
+
+### Step 5 – Receiver checks the frame
+For Go-Back-N, the receiver expects frames **in strict order**.
+*Example:*
+- Expected: Frame 3
+- Received: Frame 4
+*(Frame 4 is discarded/not accepted because Frame 3 is missing).*
+
+### Step 6 – Retransmit (The "Go-Back" part)
+When the sender does not receive the required acknowledgement before timeout, it goes back and retransmits the required frame **and all subsequent frames** that were in the window.
+
+*Example:*
+```
+Frame 3 lost
+Retransmitting:
+Frame 3
+Frame 4
+Frame 5
+```
+
+### Step 7 – Continue until all frames are transmitted
+Finally, the program finishes when all frames are acknowledged:
+```
+Frame 1 → ACK
+Frame 2 → ACK
+Frame 3 → ACK
+Frame 4 → ACK
+Frame 5 → ACK
+Frame 6 → ACK
 ```
 
 ---
 
-## PART B – SELECTIVE REPEAT (SR)
+## 4. Selective Repeat — How to Perform It
 
-### Concept
-- Receiver **buffers** correctly received out-of-order frames
-- Sender retransmits **ONLY** the lost or errored frame
-- More efficient than Go-Back-N
+Create another program, for example: `selective_repeat.py`
 
-### Diagram
+### Step 1 – Take input
+*Example:*
 ```
-Sender Window (W = 4):
-
-[F0 ✓] [F1 ✓] [F2 ✗LOST] [F3 📦buffered] [F4 📦buffered]
-                    ↓
-         Only F2 is retransmitted → F3, F4 already buffered
+Number of frames: 6
+Window size: 3
+Lost frame: 3
 ```
 
-### Implementation Plan
-
-1. Define window size, total frames, and which frame will be lost
-2. Sender transmits frames within the window
-3. Simulate loss of one specific frame
-4. Receiver stores correctly-received out-of-order frames in a **buffer**
-5. Receiver sends **individual ACKs** for every correctly received frame
-6. Sender retransmits **only the missing frame**
-7. Receiver delivers all frames in order after the gap is filled
-8. Display buffer state, ACKs, and retransmissions
-
-### Key Formula
+### Step 2 – Send the window
 ```
-Sender window size  =  2^(n-1)   (where n = number of sequence bits)
+Sending Frame 1
+Sending Frame 2
+Sending Frame 3
+```
+*(Suppose Frame 3 is lost).*
+
+### Step 3 – Receiver handles the error
+Unlike Go-Back-N, the receiver **can** accept later correctly received frames and buffer them.
+*Example:*
+```
+Frame 1 → ACK
+Frame 2 → ACK
+Frame 3 → LOST
+Frame 4 → received and buffered
 ```
 
----
+### Step 4 – Retransmit ONLY the missing frame
+Instead of retransmitting 3, 4, and 5, Selective Repeat retransmits:
+`Frame 3`
 
-## ⚖️ KEY DIFFERENCES: Go-Back-N vs Selective Repeat
+### Step 5 – Acknowledge the retransmitted frame
+Once Frame 3 is finally received:
+`Frame 3 → ACK`
 
-| Feature | Go-Back-N | Selective Repeat |
-|---------|-----------|-----------------|
-| Retransmission | Lost frame + **all** following frames | **Only** the lost frame |
-| Receiver Buffer | **Not required** (discards out-of-order) | **Required** (buffers out-of-order) |
-| Efficiency | Lower (more retransmissions) | Higher (fewer retransmissions) |
-| Complexity | Simpler | More complex |
-| Sender Window | 2ⁿ – 1 | 2ⁿ⁻¹ |
-| ACK Type | Cumulative ACK | Individual ACK per frame |
+The receiver can now process the buffered frames (like Frame 4) in sequence.
 
----
-
-## 🔑 KEY POINTS
-- **Window Size** controls how many frames can be sent without an ACK
-- Larger window → better throughput (but more memory needed)
-- GBN → easier to implement, wastes bandwidth on errors
-- SR → better bandwidth efficiency, needs receiver buffer
+### Step 6 – Continue sliding the window
+The window keeps moving until all frames are successfully delivered.
 
 ---
 
 ## ✅ RESULT
-Go-Back-N and Selective Repeat sliding-window mechanisms were studied and their retransmission behavior was analyzed.
+The concepts of Go-Back-N and Selective Repeat sliding window protocols were studied, and their transmission/retransmission logic was implemented programmatically.
 
 ---
 [← Practical 6](practical6.md) | [Back to Home](README.md) | [Next → Practical 8](practical8.md)
