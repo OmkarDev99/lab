@@ -1,126 +1,183 @@
-# Practical 3 – Study and Configure Bus and Mesh Network Topologies
+# Practical 3 – Bus and Mesh Topologies in Cisco Packet Tracer
 
 [← Back to Home](README.md)
 
 ---
 
 ## 🎯 AIM
-To study, design and simulate Bus and Mesh network topologies using Cisco Packet Tracer.
+Study and Configure Bus and Mesh Network Topologies in Cisco Packet Tracer.
 
 ---
 
 ## PART A – BUS TOPOLOGY
 
-> **Note:** Packet Tracer does not support a real coaxial bus. A **Hub** is used to simulate the shared-medium bus concept.
-
-### 🖥️ Devices Required
-- 4 × PC (PC0, PC1, PC2, PC3)
-- 1 × Hub-PT
-- Copper Straight-Through cables
-
-### 📋 IP Configuration
-
-| Device | IP Address | Subnet Mask |
-|--------|-----------|-------------|
-| PC0 | 192.168.10.1 | 255.255.255.0 |
-| PC1 | 192.168.10.2 | 255.255.255.0 |
-| PC2 | 192.168.10.3 | 255.255.255.0 |
-| PC3 | 192.168.10.4 | 255.255.255.0 |
-
-### 🔧 Steps
-
-1. Add **PC0, PC1, PC2, PC3** and a **Hub-PT** to the workspace
-2. Connect all four PCs to the Hub using **Copper Straight-Through** cables:
-   ```
-   PC0  →  Hub
-   PC1  →  Hub
-   PC2  →  Hub
-   PC3  →  Hub
-   ```
-3. Assign IP addresses to each PC as shown in the table (no gateway needed)
-4. From PC0 → Desktop → **Command Prompt**:
-   ```
-   ping 192.168.10.2
-   ping 192.168.10.3
-   ping 192.168.10.4
-   ```
-5. Verify successful replies ✅
-
-### 🔑 Bus Topology Key Points
-- All devices share a **single communication line** (the Hub acts as the bus)
-- Data sent by one device is received by **all other devices**
-- Simple but prone to **collisions**
+### What is Bus Topology?
+In a bus topology, devices communicate through a common communication path. In this Packet Tracer implementation, switches are connected in a linear chain to simulate the bus.
 
 ---
 
-## PART B – MESH TOPOLOGY (Full Mesh with 4 Routers)
+### 🔧 Steps
 
-With 4 routers, every router connects to every other → **6 links total**
+#### Step 1 – Open Packet Tracer
+1. Open **Cisco Packet Tracer**
+2. Create a **New Project** (File → New)
+
+#### Step 2 – Add Switches
+From the bottom-left device panel:
+1. Go to **Networking Devices → Switches**
+2. Place **3 switches** on the workspace:
 
 ```
-Connections:
-R0 ↔ R1
-R0 ↔ R2
-R0 ↔ R3
-R1 ↔ R2
-R1 ↔ R3
-R2 ↔ R3
+Switch0     Switch1     Switch2
 ```
 
-### 🖥️ Devices Required
-- 4 × Router 1941
-- Copper Cross-Over or Serial cables (depending on interface type)
+#### Step 3 – Add PCs
+1. Go to **End Devices → PC**
+2. Place **3 PCs** corresponding to the switches:
 
-### 📋 Subnet Plan (Point-to-Point /30 Links)
+```
+PC0         PC1         PC2
+```
 
-| Link | Subnet | Router A IP | Router B IP |
-|------|--------|-------------|-------------|
-| R0 ↔ R1 | 10.0.0.0/30 | 10.0.0.1 | 10.0.0.2 |
-| R0 ↔ R2 | 10.0.0.4/30 | 10.0.0.5 | 10.0.0.6 |
-| R0 ↔ R3 | 10.0.0.8/30 | 10.0.0.9 | 10.0.0.10 |
-| R1 ↔ R2 | 10.0.0.12/30 | 10.0.0.13 | 10.0.0.14 |
-| R1 ↔ R3 | 10.0.0.16/30 | 10.0.0.17 | 10.0.0.18 |
-| R2 ↔ R3 | 10.0.0.20/30 | 10.0.0.21 | 10.0.0.22 |
+#### Step 4 – Connect each PC to its switch
+1. Click **Connections** (⚡) → **Copper Straight-Through**
+2. Connect each PC to its respective switch:
+   - Click **PC0** → select `FastEthernet0`
+   - Click **Switch0** → select an available `FastEthernet` port
+   - Repeat for **PC1 → Switch1** and **PC2 → Switch2**
+
+#### Step 5 – Connect the switches in a line
+Now connect the switches together to form the bus backbone.
+1. Select **Connections** (⚡) → **Copper Crossover**
+2. Connect:
+   - **Switch0 ───── Switch1**
+   - **Switch1 ───── Switch2**
+
+So the complete topology becomes:
+```
+PC0          PC1          PC2
+ |            |            |
+Switch0 ─── Switch1 ─── Switch2
+```
+
+#### Step 6 – Configure IP addresses
+Every PC needs a unique IP address with the same subnet mask.
+
+| Device | IP Address | Subnet Mask |
+|--------|-----------|-------------|
+| PC0 | 192.168.0.1 | 255.255.255.0 |
+| PC1 | 192.168.0.2 | 255.255.255.0 |
+| PC2 | 192.168.0.3 | 255.255.255.0 |
+
+*(Double-click PC → Desktop → IP Configuration)*
+
+#### Step 7 – Verify using Ping
+1. Open **PC0 → Desktop → Command Prompt**
+2. Type:
+   ```
+   ping 192.168.0.2
+   ping 192.168.0.3
+   ```
+> ✅ If you get `Reply from 192.168.0.2`, the connection is working.
+
+#### Step 8 – Verify using Simple PDU
+You can also demonstrate packet transmission visually:
+1. Select the **Add Simple PDU** icon (closed envelope icon on the right menu)
+2. Click the **source PC** (e.g., PC0)
+3. Click the **destination PC** (e.g., PC2)
+4. Observe the packet movement through the topology in Simulation Mode.
+
+---
+
+## PART B – MESH TOPOLOGY
+
+### What is Mesh Topology?
+In a mesh topology, devices have multiple direct connections, creating redundant paths. This provides better fault tolerance because data can use another path if one path fails.
+
+---
 
 ### 🔧 Steps
 
-1. Add **4 × Router 1941** to the workspace
-2. Add required interface modules if needed (e.g. HWIC-2T for serial links)
-3. Connect every router to every other router (6 cables total)
-4. Configure each interface — example for **R0**:
-   ```
-   enable
-   configure terminal
+#### Step 1 – Create a new project
+Go to **File → New** to create a blank Packet Tracer project.
 
-   interface GigabitEthernet 0/0
-    ip address 10.0.0.1 255.255.255.252
-    no shutdown
+#### Step 2 – Add 4 PCs
+Go to **End Devices → PC** and place 4 PCs:
+```
+PC0
+PC1
+PC2
+PC3
+```
 
-   interface GigabitEthernet 0/1
-    ip address 10.0.0.5 255.255.255.252
-    no shutdown
+#### Step 3 – Add 4 Switches
+Go to **Networking Devices → Switches** and place 4 switches:
+```
+Switch0
+Switch1
+Switch2
+Switch3
+```
 
-   interface Serial 0/0/0
-    ip address 10.0.0.9 255.255.255.252
-    no shutdown
+#### Step 4 – Connect PCs to switches
+Each PC must be connected to **all four switches** using Ethernet cables.
+For each PC:
+1. Click the PC → select an available port.
+2. Select the switch → select an available port.
+3. Repeat until the PC is connected to all four switches.
 
-   end
-   ```
-5. Repeat for R1, R2, R3 with their respective IPs
-6. Test with:
-   ```
-   ping <neighbor-IP>
-   ```
+Conceptually for PC0:
+```
+PC0 ── Switch0
+  ├── Switch1
+  ├── Switch2
+  └── Switch3
+```
+*(Do the same for PC1, PC2 and PC3)*
 
-### 🔑 Mesh Topology Key Points
-- Every device has a **dedicated link** to every other device
-- Highly **reliable** — if one link fails, data takes another path
-- Very **expensive** — number of links = n(n-1)/2
+#### Step 5 – Connect switches to each other
+Now connect every switch to the other three switches.
+
+Conceptually:
+```
+       Switch0
+      /   |   \
+     /    |    \
+Switch1 ───── Switch2
+     \    |    /
+      \   |   /
+       Switch3
+```
+This creates the multiple paths required for the mesh topology.
+
+#### Step 6 – Configure IP addresses
+For each PC, double-click → Desktop → IP Configuration:
+
+| PC | IP Address | Subnet Mask |
+|----|-----------|-------------|
+| PC0 | 192.168.0.1 | 255.255.255.0 |
+| PC1 | 192.168.0.2 | 255.255.255.0 |
+| PC2 | 192.168.0.3 | 255.255.255.0 |
+| PC3 | 192.168.0.4 | 255.255.255.0 |
+
+#### Step 7 – Test the Mesh Network
+Open **PC0 → Desktop → Command Prompt** and run:
+```
+ping 192.168.0.2
+ping 192.168.0.3
+ping 192.168.0.4
+```
+> ✅ You should receive replies from all PCs.
+
+#### Step 8 – Use Simple PDU
+1. Select **Simple PDU** (envelope icon)
+2. Click the source PC and then the destination PC
+3. Switch to Simulation mode and observe the packet travelling through the mesh network's redundant paths.
 
 ---
 
 ## ✅ RESULT
-Bus and Mesh topologies were studied and simulated successfully.
+Bus and Mesh network topologies were successfully studied and configured in Cisco Packet Tracer.
 
 ---
 [← Practical 2](practical2.md) | [Back to Home](README.md) | [Next → Practical 4](practical4.md)
