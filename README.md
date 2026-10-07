@@ -1,95 +1,70 @@
-# 🌐 Computer Networks Lab – Practicals 1–10
+# 🌐 Computer Networks Lab – Practicals 1 to 10
 
-A beautifully designed, interactive web guide covering all **10 Computer Networks Lab Practicals** — from basic networking theory to Wireshark packet analysis.
-
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-blue?style=for-the-badge)](https://your-username.github.io/cn-lab-practicals)
-[![Made with](https://img.shields.io/badge/Made%20with-HTML%20%7C%20CSS%20%7C%20JS-orange?style=for-the-badge)]()
-
----
-
-## 📚 Practicals Covered
-
-| No. | Practical | Tool |
-|-----|-----------|------|
-| P1  | Study of Basic Networking Elements & Devices | Theory |
-| P2  | LAN using Hub & Switch | Packet Tracer |
-| P3  | Bus & Mesh Topologies | Packet Tracer |
-| P4  | Star & Ring Topologies | Packet Tracer |
-| P5  | Two LANs Connected via Router | Packet Tracer |
-| P6  | DHCP Server & DNS Server | Packet Tracer |
-| P7  | Sliding Window – Go-Back-N & Selective Repeat | Simulation |
-| P8  | Static Routing | Packet Tracer |
-| P9  | RIP v2 Dynamic Routing | Packet Tracer |
-| P10 | HTTP, TCP & ICMP Analysis | Wireshark |
+> **How to use on college PC:**
+> ```
+> git clone https://github.com/OmkarDev99/lab.git
+> cd lab
+> ```
+> Then open any `.md` file below.
 
 ---
 
-## ✨ Features
+## 📚 All Practicals
 
-- 🎨 **Premium dark-mode UI** with glassmorphism and gradient accents
-- 📋 **Interactive Exam Checklist** with progress bar (saved to `localStorage`)
-- ⚡ **Quick Command Cheat Sheet** overlay for fast CLI reference
-- 🗂️ **Tab-based navigation** within each practical (Part A / Part B)
-- 📋 **Copy-to-clipboard** for every CLI/code block
-- ⌨️ **Keyboard shortcuts** — press `1`–`9`, `0` to jump to any practical, `Esc` to close overlays
-- 📐 Fully **responsive** for mobile, tablet & desktop
-- 🖧 **Topology diagrams** and IP tables for each practical
-
----
-
-## 🚀 Getting Started
-
-### View Locally
-
-Just open `index.html` in any modern browser — no build step required.
-
-```bash
-# Clone the repo
-git clone https://github.com/your-username/cn-lab-practicals.git
-cd cn-lab-practicals
-
-# Open directly
-start index.html        # Windows
-open index.html         # macOS
-xdg-open index.html     # Linux
-```
-
-### Deploy to GitHub Pages
-
-1. Go to your repository on GitHub
-2. Settings → Pages → Source: **Deploy from branch** → `main` / `(root)`
-3. Save — your site will be live at `https://your-username.github.io/cn-lab-practicals`
+| No. | File | Topic |
+|-----|------|-------|
+| 01 | [practical1.md](practical1.md) | Study of Basic Networking Elements & Devices |
+| 02 | [practical2.md](practical2.md) | LAN using Hub & Switch |
+| 03 | [practical3.md](practical3.md) | Bus & Mesh Topologies |
+| 04 | [practical4.md](practical4.md) | Star & Ring Topologies |
+| 05 | [practical5.md](practical5.md) | Two LANs Connected via Router |
+| 06 | [practical6.md](practical6.md) | DHCP Server & DNS Server |
+| 07 | [practical7.md](practical7.md) | Sliding Window – Go-Back-N & Selective Repeat |
+| 08 | [practical8.md](practical8.md) | Static Routing |
+| 09 | [practical9.md](practical9.md) | RIP v2 Dynamic Routing |
+| 10 | [practical10.md](practical10.md) | HTTP, TCP & ICMP using Wireshark |
 
 ---
 
-## ⌨️ Keyboard Shortcuts
+## ⚠️ Important Notes
 
-| Key | Action |
-|-----|--------|
-| `1` – `9` | Jump to Practical 1–9 |
-| `0` | Jump to Practical 10 |
-| `Esc` | Close any open overlay |
-
----
-
-## 🛠️ Tech Stack
-
-- **HTML5** – Semantic structure
-- **Vanilla CSS** – Custom design system with CSS custom properties
-- **Vanilla JavaScript** – Navigation, interactivity, localStorage
-- **Google Fonts** – Inter (sans-serif) + JetBrains Mono (code)
-
----
-
-## 📝 Important Notes
-
-- Use **Copper Straight-Through** for PC → Switch/Router connections in Packet Tracer
-- Router interfaces are **OFF by default** — always use `no shutdown`
+- Use **Copper Straight-Through** cable for PC → Switch / Router connections
+- Router interfaces are **OFF by default** → always use `no shutdown`
 - Default subnet mask: **255.255.255.0** unless stated otherwise
-- Test connectivity with `ping <destination-IP>`
+- Test connectivity with: `ping <destination-IP>`
 
 ---
 
-## 📄 License
+## ⚡ Quick Command Cheat Sheet
 
-MIT — free to use, share, and modify.
+```
+# Router basic config
+enable
+configure terminal
+interface gigabitEthernet 0/0
+ip address <IP> <MASK>
+no shutdown
+exit
+end
+
+# View interfaces
+show ip interface brief
+
+# View routing table
+show ip route
+
+# Static route
+ip route <DESTINATION> <MASK> <NEXT-HOP>
+
+# RIP v2
+router rip
+version 2
+no auto-summary
+network <NETWORK>
+
+# Test connectivity
+ping <IP>
+
+# PC IP info
+ipconfig
+```
