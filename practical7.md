@@ -1,170 +1,99 @@
-# Practical 7 – Sliding Window Protocols (Go-Back-N & Selective Repeat)
+Practical number 07
 
-[← Back to Home](README.md)
+import random
+import time
 
----
+def simulate_go_back_n(total_frames, window_size, loss_probability=0.2):
+    print(f"\n==============================================")
+    print(f"--- Starting Go-Back-N (GBN) Simulation ---")
+    print(f"Total Frames: {total_frames} | Window Size: {window_size}")
+    print(f"==============================================\n")
+    
+    base = 0          # Oldest unacknowledged frame
+    next_seq_num = 0  # Next frame to send
+    
+    while base < total_frames:
+        # Send all available frames within the current window
+        while next_seq_num < base + window_size and next_seq_num < total_frames:
+            print(f"[Sender] Sending Frame {next_seq_num}")
+            next_seq_num += 1
+            time.sleep(0.1)
+            
+        time.sleep(0.3)
+        
+        # Check acknowledgment for the oldest unacknowledged frame (base)
+        print(f"\n[Channel] Checking status for Frame {base}...")
+        
+        if random.random() < loss_probability:
+            # Frame or ACK is lost
+            print(f"[Channel] X PACKET/ACK LOSS: Frame {base} failed!")
+            print(f"[Sender] ! Timeout ! Retransmitting window starting from Frame {base}\n")
+            # Reset next_seq_num back to base to force retransmission of the entire window
+            next_seq_num = base
+        else:
+            # Frame successfully acknowledged
+            print(f"[Receiver] ✓ Received Frame {base} successfully. Sending ACK {base + 1}")
+            base += 1
+            print(f"[Sender] Sliding window forward. New Base: {base}\n")
 
-## 🎯 AIM
-To implement Go-Back-N and Selective Repeat sliding window ARQ protocols using a programming language of your choice.
+    print("--- Go-Back-N Simulation Completed Successfully! ---\n")
 
-> **Note:** This practical is different from Practicals 1–6. It is **not** done in Cisco Packet Tracer. The manual asks you to implement these protocols programmatically (e.g., using Python, C++, Java).
 
----
+def simulate_selective_repeat(total_frames, window_size, loss_probability=0.2):
+    print(f"\n==============================================")
+    print(f"--- Starting Selective Repeat (SR) Simulation ---")
+    print(f"Total Frames: {total_frames} | Window Size: {window_size}")
+    print(f"==============================================\n")
+    
+    base = 0
+    # Track the state of each frame: False = Not ACKed, True = ACKed
+    acked_frames = [False] * total_frames
+    # Track which frames have already been sent to prevent redundant sends before timeout checks
+    sent_frames = [False] * total_frames
+    
+    while base < total_frames:
+        # Send outstanding frames inside the window
+        for i in range(base, min(base + window_size, total_frames)):
+            if not acked_frames[i] and not sent_frames[i]:
+                print(f"[Sender] Sending Frame {i}")
+                sent_frames[i] = True
+                time.sleep(0.1)
+                
+        time.sleep(0.3)
+        
+        # Check status of sent frames in the current window
+        for i in range(base, min(base + window_size, total_frames)):
+            if not acked_frames[i]:
+                print(f"\n[Channel] Checking status for Frame {i}...")
+                
+                if random.random() < loss_probability:
+                    print(f"[Channel] X PACKET/ACK LOSS: Frame {i} failed!")
+                    print(f"[Sender] ! Timeout ! Will retransmit ONLY Frame {i} later.")
+                    # Reset sent flag so it gets retransmitted in the next loop iteration
+                    sent_frames[i] = False 
+                else:
+                    print(f"[Receiver] ✓ Received Frame {i} successfully. Sending ACK {i}")
+                    acked_frames[i] = True
+                    
+        # Slide window forward as far as possible past consecutive ACKs
+        while base < total_frames and acked_frames[base]:
+            base += 1
+            print(f"[Sender] Sliding window forward. New Base: {base}")
+            
+        print()
 
-## 1. Understand What You Have to Implement
+    print("--- Selective Repeat Simulation Completed Successfully! ---\n")
 
-You need to write programs for two protocols:
 
-### A. Go-Back-N (GBN)
-Suppose the sender sends:
-`Frame 1 → Frame 2 → Frame 3 → Frame 4`
-
-If Frame 3 is lost/corrupted, the receiver **does not accept it** (or any subsequent frames) and the sender eventually retransmits the required frame **and the subsequent frames**.
-
-**Manual Specifications:**
-- Receiver buffer size = 1
-- Sender has a predefined buffer/window size.
-- If a frame is corrupted, the receiver cancels/discards it.
-- If the ACK timer expires, retransmission occurs.
-
-### B. Selective Repeat (SR)
-Suppose the sender sends:
-`Frame 1 → Frame 2 → Frame 3 → Frame 4`
-*(Suppose Frame 3 is lost ❌)*
-
-If Frame 3 is corrupted/lost:
-**Retransmit ONLY Frame 3.**
-
-Frames received correctly after it (like Frame 4) can be acknowledged and buffered by the receiver.
-
-**Manual Specifications:**
-- Sender and receiver window sizes are the **same**.
-- Selective Repeat saves bandwidth compared to Go-Back-N.
-
----
-
-## 2. What You Need for the Practical
-
-Since the manual says "using a programming language of your choice", you can use a language like **Python**. You do not need Packet Tracer for this practical. The procedure is simply to implement both protocols programmatically to demonstrate the logic.
-
----
-
-## 3. Go-Back-N — How to Perform It
-
-For your practical, think of the program as having two sides: SENDER and RECEIVER.
-
-### Step 1 – Start the program
-Create your code file, for example: `go_back_n.py`
-
-### Step 2 – Take input
-Your program should ask for:
-- Number of frames
-- Window size
-- Which frame should be considered lost/corrupted
-
-*Example:*
-```
-Number of frames: 6
-Window size: 3
-Lost frame: 3
-```
-
-### Step 3 – Create the sender window
-If window size = 3, the sender window starts as:
-`[1] [2] [3]`
-
-The sender can initially send these frames.
-After successful acknowledgements, the window slides:
-`[2] [3] [4]` → `[3] [4] [5]` and so on.
-
-### Step 4 – Send frames
-The program prints:
-```
-Sending Frame 1
-Sending Frame 2
-Sending Frame 3
-```
-If Frame 3 is designated as lost: `Frame 3 lost/corrupted`
-
-### Step 5 – Receiver checks the frame
-For Go-Back-N, the receiver expects frames **in strict order**.
-*Example:*
-- Expected: Frame 3
-- Received: Frame 4
-*(Frame 4 is discarded/not accepted because Frame 3 is missing).*
-
-### Step 6 – Retransmit (The "Go-Back" part)
-When the sender does not receive the required acknowledgement before timeout, it goes back and retransmits the required frame **and all subsequent frames** that were in the window.
-
-*Example:*
-```
-Frame 3 lost
-Retransmitting:
-Frame 3
-Frame 4
-Frame 5
-```
-
-### Step 7 – Continue until all frames are transmitted
-Finally, the program finishes when all frames are acknowledged:
-```
-Frame 1 → ACK
-Frame 2 → ACK
-Frame 3 → ACK
-Frame 4 → ACK
-Frame 5 → ACK
-Frame 6 → ACK
-```
-
----
-
-## 4. Selective Repeat — How to Perform It
-
-Create another program, for example: `selective_repeat.py`
-
-### Step 1 – Take input
-*Example:*
-```
-Number of frames: 6
-Window size: 3
-Lost frame: 3
-```
-
-### Step 2 – Send the window
-```
-Sending Frame 1
-Sending Frame 2
-Sending Frame 3
-```
-*(Suppose Frame 3 is lost).*
-
-### Step 3 – Receiver handles the error
-Unlike Go-Back-N, the receiver **can** accept later correctly received frames and buffer them.
-*Example:*
-```
-Frame 1 → ACK
-Frame 2 → ACK
-Frame 3 → LOST
-Frame 4 → received and buffered
-```
-
-### Step 4 – Retransmit ONLY the missing frame
-Instead of retransmitting 3, 4, and 5, Selective Repeat retransmits:
-`Frame 3`
-
-### Step 5 – Acknowledge the retransmitted frame
-Once Frame 3 is finally received:
-`Frame 3 → ACK`
-
-The receiver can now process the buffered frames (like Frame 4) in sequence.
-
-### Step 6 – Continue sliding the window
-The window keeps moving until all frames are successfully delivered.
-
----
-
-## ✅ RESULT
-The concepts of Go-Back-N and Selective Repeat sliding window protocols were studied, and their transmission/retransmission logic was implemented programmatically.
-
----
-[← Practical 6](practical6.md) | [Back to Home](README.md) | [Next → Practical 8](practical8.md)
+# Main execution parameters
+if __name__ == "__main__":
+    # Seed fixed for predictable and comparable random behavior between both runs
+    random.seed(42)  
+    
+    FRAMES_COUNT = 6
+    WINDOW_SZ = 3
+    LOSS_RATE = 0.3  # 30% chance a packet or its ACK drops
+    
+    # Run both simulations sequentially
+    simulate_go_back_n(total_frames=FRAMES_COUNT, window_size=WINDOW_SZ, loss_probability=LOSS_RATE)
+    simulate_selective_repeat(total_frames=FRAMES_COUNT, window_size=WINDOW_SZ, loss_probability=LOSS_RATE)
